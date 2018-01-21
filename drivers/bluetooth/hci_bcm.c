@@ -496,8 +496,10 @@ static int bcm_setup(struct hci_uart *hu)
 	hu->hdev->set_bdaddr = btbcm_set_bdaddr;
 
 	err = btbcm_initialize(hu->hdev, fw_name, sizeof(fw_name));
-	if (err)
+	if (err) {
+		bt_dev_info(hu->hdev, "BCM: btbcm_initialize failed (%d)", err);
 		return err;
+	}
 
 	err = request_firmware(&fw, fw_name, &hu->hdev->dev);
 	if (err < 0) {
