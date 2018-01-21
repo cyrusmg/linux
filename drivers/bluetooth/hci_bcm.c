@@ -501,17 +501,17 @@ static int bcm_setup(struct hci_uart *hu)
 		return err;
 	}
 
-	err = request_firmware(&fw, fw_name, &hu->hdev->dev);
-	if (err < 0) {
-		bt_dev_info(hu->hdev, "BCM: Patch %s not found", fw_name);
-		return 0;
-	}
+	// err = request_firmware(&fw, fw_name, &hu->hdev->dev);
+	// if (err < 0) {
+	// 	bt_dev_info(hu->hdev, "BCM: Patch %s not found", fw_name);
+	// 	return 0;
+	// }
 
-	err = btbcm_patchram(hu->hdev, fw);
-	if (err) {
-		bt_dev_info(hu->hdev, "BCM: Patch failed (%d)", err);
-		goto finalize;
-	}
+	// err = btbcm_patchram(hu->hdev, fw);
+	// if (err) {
+	// 	bt_dev_info(hu->hdev, "BCM: Patch failed (%d)", err);
+	// 	goto finalize;
+	// }
 
 	/* Init speed if any */
 	if (hu->init_speed)
@@ -539,7 +539,7 @@ static int bcm_setup(struct hci_uart *hu)
 	}
 
 finalize:
-	release_firmware(fw);
+	// release_firmware(fw);
 
 	err = btbcm_finalize(hu->hdev);
 	if (err)
