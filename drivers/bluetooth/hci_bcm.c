@@ -310,6 +310,11 @@ static int bcm_setup_sleep(struct hci_uart *hu)
 	struct sk_buff *skb;
 	struct bcm_set_sleep_mode sleep_params = default_sleep_params;
 
+	struct bcm_set_sleep_mode sleep_params_orig;
+	skb = __hci_cmd_sync(hu->hdev, 0xfc28, sizeof(sleep_params_orig), &sleep_params_orig, HCI_INIT_TIMEOUT);
+	kfree_skb(skb);
+	printk("sleep_params_orig = %*ph\n", sizeof(sleep_params_orig), &sleep_params_orig);
+
 	sleep_params.host_wake_active = !bcm->dev->irq_active_low;
 
 	skb = __hci_cmd_sync(hu->hdev, 0xfc27, sizeof(sleep_params),
@@ -538,8 +543,8 @@ finalize:
 	if (err)
 		return err;
 
-	if (!bcm_request_irq(bcm))
-		err = bcm_setup_sleep(hu);
+	bcm_request_irq(bcm);
+	err = bcm_setup_sleep(hu);
 
 	return err;
 }
