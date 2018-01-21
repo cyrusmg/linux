@@ -252,7 +252,7 @@ static void dw8250_set_termios(struct uart_port *p, struct ktermios *termios,
 			       struct ktermios *old)
 {
 	unsigned int baud = tty_termios_baud_rate(termios);
-	unsigned int target_rate, min_rate, max_rate;
+	unsigned int target_rate, min_rate, max_rate, div_max;
 	struct dw8250_data *d = p->private_data;
 	long rate;
 	int i, ret;
@@ -265,12 +265,14 @@ static void dw8250_set_termios(struct uart_port *p, struct ktermios *termios,
 	min_rate = target_rate - (target_rate >> 6);
 	max_rate = target_rate + (target_rate >> 6);
 
-	for (i = 1; i <= UART_DIV_MAX; i++) {
+	/* Avoid overflow */
+	div_max = min(UINT_MAX / max_rate, (unsigned int)UART_DIV_MAX);
+	for (i = 1; i <= div_max; i++) {
 		rate = clk_round_rate(d->clk, i * target_rate);
 		if (rate >= i * min_rate && rate <= i * max_rate)
 			break;
 	}
-	if (i <= UART_DIV_MAX) {
+	if (i <= div_max) {
 		clk_disable_unprepare(d->clk);
 		ret = clk_set_rate(d->clk, rate);
 		clk_prepare_enable(d->clk);
